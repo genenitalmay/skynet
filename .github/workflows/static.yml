@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矿用设备便携远程控制系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        dark: '#1D2129',
+                        'dark-2': '#4E5969',
+                        'dark-3': '#86909C',
+                        'light-1': '#F2F3F5',
+                        'light-2': '#E5E6EB',
+                        'light-3': '#C9CDD4'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .dashboard-card {
+                @apply bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
+            }
+            .dashboard-value {
+                @apply text-[clamp(1.5rem,3vw,2.5rem)] font-bold;
+            }
+            .dashboard-label {
+                @apply text-dark-2 font-medium text-sm mb-1;
+            }
+            .status-indicator {
+                @apply w-3 h-3 rounded-full inline-block mr-2;
+            }
+            .status-text {
+                @apply font-medium text-sm;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:-translate-y-1;
+            }
+            .device-card {
+                @apply bg-white rounded-xl shadow-md p-4 transition-all duration-300 hover:shadow-lg cursor-pointer;
+            }
+            .device-card-active {
+                @apply border-2 border-primary bg-primary/5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light-1 font-inter text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md z-10 sticky top-0">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-industry text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">矿用设备便携远程控制系统</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="p-2 rounded-full hover:bg-light-1 transition-colors">
+                    <i class="fa fa-bell-o text-dark-2"></i>
+                </button>
+                <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <i class="fa fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 设备选择菜单 -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4">设备选择</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="device-card device-card-active" data-device-id="device1">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                <i class="fa fa-microchip"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">设备 1</h3>
+                                <p class="text-dark-3 text-xs">位置: A区</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator bg-success"></span>
+                            <span class="status-text text-success">在线</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="device-card" data-device-id="device2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                <i class="fa fa-microchip"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">设备 2</h3>
+                                <p class="text-dark-3 text-xs">位置: B区</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator bg-success"></span>
+                            <span class="status-text text-success">在线</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="device-card" data-device-id="device3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                <i class="fa fa-microchip"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">设备 3</h3>
+                                <p class="text-dark-3 text-xs">位置: C区</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator bg-danger"></span>
+                            <span class="status-text text-danger">离线</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 环境监测数据 -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4" id="device-title">设备 1 环境监测数据</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 温度监测 -->
+                <div class="dashboard-card flex flex-col items-center justify-center text-center">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+                        <i class="fa fa-thermometer-half text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-1">温度监测</h3>
+                    <p class="dashboard-value text-dark" id="temperatureValue">23.5°C</p>
+                    <div class="flex items-center mt-2">
+                        <span class="status-indicator bg-success"></span>
+                        <span class="status-text text-success">正常</span>
+                    </div>
+                    <p class="text-dark-3 text-sm mt-3">正常范围: 0°C - 40°C</p>
+                </div>
+                
+                <!-- 湿度监测 -->
+                <div class="dashboard-card flex flex-col items-center justify-center text-center">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+                        <i class="fa fa-tint text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-1">湿度监测</h3>
+                    <p class="dashboard-value text-dark" id="humidityValue">78%</p>
+                    <div class="flex items-center mt-2">
+                        <span class="status-indicator bg-warning"></span>
+                        <span class="status-text text-warning">偏高</span>
+                    </div>
+                    <p class="text-dark-3 text-sm mt-3">正常范围: 30% - 70%</p>
+                </div>
+                
+                <!-- 一氧化碳监测 -->
+                <div class="dashboard-card flex flex-col items-center justify-center text-center">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+                        <i class="fa fa-flask text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-1">一氧化碳(CO)</h3>
+                    <p class="dashboard-value text-dark" id="coValue">12 ppm</p>
+                    <div class="flex items-center mt-2">
+                        <span class="status-indicator bg-success"></span>
+                        <span class="status-text text-success">正常</span>
+                    </div>
+                    <p class="text-dark-3 text-sm mt-3">安全值: < 50 ppm</p>
+                </div>
+                
+                <!-- 甲烷监测 -->
+                <div class="dashboard-card flex flex-col items-center justify-center text-center">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+                        <i class="fa fa-fire text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-1">甲烷(CH₄)</h3>
+                    <p class="dashboard-value text-danger" id="methaneValue">1.4%</p>
+                    <div class="flex items-center mt-2">
+                        <span class="status-indicator bg-danger"></span>
+                        <span class="status-text text-danger">危险</span>
+                    </div>
+                    <p class="text-dark-3 text-sm mt-3">爆炸下限: 5%</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-light-2 py-4 mt-8">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-dark-3 text-sm">&copy; 2025 矿用设备远程控制系统. 保留所有权利.</p>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-dark-3 hover:text-primary transition-colors">
+                    <i class="fa fa-question-circle mr-1"></i> 帮助中心
+                </a>
+                <a href="#" class="text-dark-3 hover:text-primary transition-colors">
+                    <i class="fa fa-file-text-o mr-1"></i> 使用手册
+                </a>
+                <a href="#" class="text-dark-3 hover:text-primary transition-colors">
+                    <i class="fa fa-phone mr-1"></i> 联系我们
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 确保DOM完全加载后再执行
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 设备数据
+                const deviceData = {
+                    device1: {
+                        title: "设备 1 环境监测数据",
+                        location: "A区",
+                        online: true,
+                        temperature: { value: 23.5, status: "success", text: "正常" },
+                        humidity: { value: 78, status: "warning", text: "偏高" },
+                        co: { value: 12, status: "success", text: "正常" },
+                        methane: { value: 1.4, status: "danger", text: "危险" }
+                    },
+                    device2: {
+                        title: "设备 2 环境监测数据",
+                        location: "B区",
+                        online: true,
+                        temperature: { value: 28.7, status: "warning", text: "偏高" },
+                        humidity: { value: 65, status: "success", text: "正常" },
+                        co: { value: 8, status: "success", text: "正常" },
+                        methane: { value: 0.9, status: "success", text: "正常" }
+                    },
+                    device3: {
+                        title: "设备 3 环境监测数据",
+                        location: "C区",
+                        online: false,
+                        temperature: { value: 32.1, status: "warning", text: "偏高" },
+                        humidity: { value: 72, status: "warning", text: "偏高" },
+                        co: { value: 15, status: "success", text: "正常" },
+                        methane: { value: 1.8, status: "warning", text: "警告" }
+                    }
+                };
+                
+                // 更新设备数据显示
+                function updateDeviceData(deviceId) {
+                    try {
+                        const device = deviceData[deviceId];
+                        if (!device) return;
+                        
+                        // 更新标题
+                        document.getElementById('device-title').textContent = device.title;
+                        
+                        // 更新位置信息和在线状态
+                        document.querySelectorAll('.device-card').forEach(card => {
+                            const cardDeviceId = card.getAttribute('data-device-id');
+                            const cardDevice = deviceData[cardDeviceId];
+                            
+                            if (cardDevice) {
+                                // 更新位置
+                                card.querySelector('p').textContent = `位置: ${cardDevice.location}`;
+                                
+                                // 更新在线状态
+                                const statusIndicator = card.querySelector('.status-indicator');
+                                const statusText = card.querySelector('.status-text');
+                                
+                                if (cardDevice.online) {
+                                    statusIndicator.className = 'status-indicator bg-success';
+                                    statusText.className = 'status-text text-success';
+                                    statusText.textContent = '在线';
+                                } else {
+                                    statusIndicator.className = 'status-indicator bg-danger';
+                                    statusText.className = 'status-text text-danger';
+                                    statusText.textContent = '离线';
+                                }
+                                
+                                // 如果是离线设备，禁用点击
+                                if (!cardDevice.online) {
+                                    card.classList.add('opacity-70', 'cursor-not-allowed');
+                                    card.removeEventListener('click', handleDeviceClick);
+                                } else {
+                                    card.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    card.addEventListener('click', handleDeviceClick);
+                                }
+                            }
+                        });
+                        
+                        // 如果选择的是离线设备，显示默认数据
+                        if (!device.online) {
+                            document.getElementById('temperatureValue').textContent = 'N/A';
+                            updateStatusIndicator('temperatureValue', 'dark-3', '离线');
+                            
+                            document.getElementById('humidityValue').textContent = 'N/A';
+                            updateStatusIndicator('humidityValue', 'dark-3', '离线');
+                            
+                            document.getElementById('coValue').textContent = 'N/A';
+                            updateStatusIndicator('coValue', 'dark-3', '离线');
+                            
+                            document.getElementById('methaneValue').textContent = 'N/A';
+                            updateStatusIndicator('methaneValue', 'dark-3', '离线');
+                            
+                            return;
+                        }
+                        
+                        // 更新温度
+                        document.getElementById('temperatureValue').textContent = `${device.temperature.value}°C`;
+                        updateStatusIndicator('temperatureValue', device.temperature.status, device.temperature.text);
+                        
+                        // 更新湿度
+                        document.getElementById('humidityValue').textContent = `${device.humidity.value}%`;
+                        updateStatusIndicator('humidityValue', device.humidity.status, device.humidity.text);
+                        
+                        // 更新一氧化碳
+                        document.getElementById('coValue').textContent = `${device.co.value} ppm`;
+                        updateStatusIndicator('coValue', device.co.status, device.co.text);
+                        
+                        // 更新甲烷
+                        document.getElementById('methaneValue').textContent = `${device.methane.value}%`;
+                        updateStatusIndicator('methaneValue', device.methane.status, device.methane.text);
+                    } catch (error) {
+                        console.error('更新设备数据出错:', error);
+                    }
+                }
+                
+                // 更新状态指示器
+                function updateStatusIndicator(valueId, status, text) {
+                    try {
+                        const indicator = document.querySelector(`#${valueId}`).nextElementSibling.querySelector('.status-indicator');
+                        const statusText = document.querySelector(`#${valueId}`).nextElementSibling.querySelector('.status-text');
+                        
+                        indicator.className = `status-indicator bg-${status}`;
+                        statusText.className = `status-text text-${status}`;
+                        statusText.textContent = text;
+                    } catch (error) {
+                        console.error('更新状态指示器出错:', error);
+                    }
+                }
+                
+                // 设备点击处理
+                function handleDeviceClick() {
+                    // 移除所有卡片的激活状态
+                    document.querySelectorAll('.device-card').forEach(c => c.classList.remove('device-card-active'));
+                    
+                    // 添加当前卡片的激活状态
+                    this.classList.add('device-card-active');
+                    
+                    // 获取设备ID
+                    const deviceId = this.getAttribute('data-device-id');
+                    
+                    // 更新设备数据显示
+                    updateDeviceData(deviceId);
+                }
+                
+                // 设备选择功能
+                function setupDeviceSelection() {
+                    try {
+                        const deviceCards = document.querySelectorAll('.device-card');
+                        deviceCards.forEach(card => {
+                            const deviceId = card.getAttribute('data-device-id');
+                            const device = deviceData[deviceId];
+                            
+                            // 如果设备在线，添加点击事件
+                            if (device && device.online) {
+                                card.addEventListener('click', handleDeviceClick);
+                            }
+                        });
+                    } catch (error) {
+                        console.error('设置设备选择功能出错:', error);
+                    }
+                }
+                
+                // 初始化页面
+                updateDeviceData('device1');
+                setupDeviceSelection();
+                
+                // 定时更新数据
+                setInterval(function() {
+                    // 随机选择一个在线设备更新数据
+                    const onlineDevices = Object.keys(deviceData).filter(id => deviceData[id].online);
+                    if (onlineDevices.length > 0) {
+                        const randomDeviceId = onlineDevices[Math.floor(Math.random() * onlineDevices.length)];
+                        
+                        // 模拟数据变化
+                        const device = deviceData[randomDeviceId];
+                        if (device) {
+                            // 温度变化 (±0.5°C)
+                            device.temperature.value = (parseFloat(device.temperature.value) + (Math.random() * 1 - 0.5)).toFixed(1);
+                            
+                            // 湿度变化 (±2%)
+                            device.humidity.value = Math.min(100, Math.max(0, parseFloat(device.humidity.value) + (Math.random() * 4 - 2))).toFixed(0);
+                            
+                            // 一氧化碳变化 (±1ppm)
+                            device.co.value = Math.max(0, parseFloat(device.co.value) + (Math.random() * 2 - 1)).toFixed(0);
+                            
+                            // 甲烷变化 (±0.1%)
+                            device.methane.value = Math.max(0, parseFloat(device.methane.value) + (Math.random() * 0.2 - 0.1)).toFixed(1);
+                            
+                            // 更新状态
+                            updateStatus(device);
+                            
+                            // 如果当前显示的是这个设备，则更新UI
+                            const activeDeviceId = document.querySelector('.device-card-active').getAttribute('data-device-id');
+                            if (activeDeviceId === randomDeviceId) {
+                                updateDeviceData(randomDeviceId);
+                            }
+                        }
+                    }
+                }, 5000);
+            } catch (error) {
+                console.error('页面初始化出错:', error);
+                // 显示错误提示
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-danger text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                errorMessage.textContent = '页面加载出错，请刷新重试';
+                document.body.appendChild(errorMessage);
+                
+                // 5秒后自动移除错误提示
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 5000);
+            }
+        });
+        
+        // 更新设备状态
+        function updateStatus(device) {
+            try {
+                // 温度状态
+                const tempValue = parseFloat(device.temperature.value);
+                if (tempValue > 35) {
+                    device.temperature.status = "danger";
+                    device.temperature.text = "危险";
+                } else if (tempValue > 30) {
+                    device.temperature.status = "warning";
+                    device.temperature.text = "偏高";
+                } else {
+                    device.temperature.status = "success";
+                    device.temperature.text = "正常";
+                }
+                
+                // 湿度状态
+                const humidityValue = parseFloat(device.humidity.value);
+                if (humidityValue > 80) {
+                    device.humidity.status = "danger";
+                    device.humidity.text = "危险";
+                } else if (humidityValue > 70) {
+                    device.humidity.status = "warning";
+                    device.humidity.text = "偏高";
+                } else {
+                    device.humidity.status = "success";
+                    device.humidity.text = "正常";
+                }
+                
+                // 一氧化碳状态
+                const coValue = parseFloat(device.co.value);
+                if (coValue > 35) {
+                    device.co.status = "danger";
+                    device.co.text = "危险";
+                } else if (coValue > 20) {
+                    device.co.status = "warning";
+                    device.co.text = "偏高";
+                } else {
+                    device.co.status = "success";
+                    device.co.text = "正常";
+                }
+                
+                // 甲烷状态
+                const methaneValue = parseFloat(device.methane.value);
+                if (methaneValue > 2.5) {
+                    device.methane.status = "danger";
+                    device.methane.text = "危险";
+                } else if (methaneValue > 1.5) {
+                    device.methane.status = "warning";
+                    device.methane.text = "警告";
+                } else {
+                    device.methane.status = "success";
+                    device.methane.text = "正常";
+                }
+            } catch (error) {
+                console.error('更新设备状态出错:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+    
